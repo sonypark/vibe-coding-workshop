@@ -105,6 +105,49 @@
     border-top:1px solid var(--line);margin-top:46px;padding-top:20px;
     font-size:12.5px;color:var(--ink3);line-height:1.7;
   }
+
+  /* ---- 학생 작품 · 별 순위 ---- */
+  .board-head{display:flex;align-items:flex-end;gap:10px 14px;flex-wrap:wrap;margin:0 0 14px}
+  .board-head .sub{margin:0;flex:1;min-width:230px}
+  .board-tools{display:flex;align-items:center;gap:10px}
+  .checked{font-size:12px;color:var(--ink3);white-space:nowrap}
+  .refresh{
+    font:inherit;font-size:12.5px;font-weight:700;color:var(--teal);background:var(--teal-soft);
+    border:0;border-radius:20px;padding:6px 13px;cursor:pointer;white-space:nowrap;
+  }
+  .refresh:disabled{opacity:.45;cursor:default}
+  .list{display:grid;gap:10px}
+  .st{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 18px;
+    display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;
+  }
+  .st.top{border-color:#e2c27f;background:var(--gold-soft)}
+  .rank{
+    width:44px;height:44px;border-radius:12px;background:var(--ground);display:flex;
+    align-items:center;justify-content:center;font-weight:800;font-size:16px;color:var(--ink2);
+  }
+  .st.medal .rank{font-size:23px;background:transparent}
+  .who{min-width:0}
+  .who h3{margin:0;font-size:16.5px;letter-spacing:-.3px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .who .id{font-size:12.5px;font-weight:500;color:var(--ink3)}
+  .who p{margin:3px 0 0;font-size:13.5px;color:var(--ink2)}
+  .links{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+  .links a{
+    font-size:12.5px;font-weight:700;text-decoration:none;padding:5px 11px;border-radius:8px;
+    border:1px solid var(--line);color:var(--ink2);background:#fff;
+  }
+  .links a.star{border-color:#e8cf9a;background:#fff8e6;color:#8a5d10}
+  .links a:hover{border-color:var(--teal);color:var(--teal)}
+  .count{text-align:right;min-width:58px}
+  .count b{display:block;font-size:27px;line-height:1.05;font-variant-numeric:tabular-nums}
+  .count small{font-size:11.5px;color:var(--ink3);white-space:nowrap}
+  .count.wait b{color:var(--ink3)}
+  .count.err b{font-size:13px;font-weight:700;color:var(--coral);line-height:1.4}
+  @media (max-width:480px){
+    .st{grid-template-columns:36px 1fr auto;gap:11px;padding:14px}
+    .rank{width:36px;height:36px;font-size:14px}
+    .count b{font-size:23px}
+  }
   @media (prefers-reduced-motion:reduce){a.card{transition:none}}
 </style>
 </head>
@@ -117,54 +160,156 @@
     </div>
   </div>
   <main><div class="wrap">
-    <h2>🧭 어디로 갈까요</h2>
-    <p class="sub">각 폴더를 열면 그 안의 예제 목록이 나옵니다.</p>
-    <div class="grid g3">
+    <div class="grid g2">
       <a class="card coral" href="day1/index.html">
         <div class="eyebrow">1회차 · 180분</div>
-        <h3>파일 하나가 세 번 자란다</h3>
+        <h3>자기소개 카드 만들기</h3>
         <p>자기소개 카드로 시작해 D-day와 만다라트를 얹습니다. 같은 파일에 계속 덧붙이는 방식.</p>
         <div class="meta"><span>예제 5개</span><span class="go">열기 →</span></div>
       </a>
-      <a class="card " href="opendata/index.html">
-        <div class="eyebrow">2회차 · 공공데이터</div>
-        <h3>지하철은 몇 시에 가장 붐빌까</h3>
-        <p>서울시가 공개한 진짜 데이터입니다. 1~8호선 245개 역을 검색하고 하루 혼잡도를 그래프로 봅니다.</p>
-        <div class="meta"><span>예제 3개</span><span class="go">열기 →</span></div>
-      </a>
-      <a class="card gold" href="lol/index.html">
-        <div class="eyebrow">2회차 · 게임 데이터</div>
-        <h3>LoL 챔피언 도감</h3>
-        <p>173명의 챔피언을 검색하고 역할별 능력치를 비교합니다. API 키 없이 동작합니다.</p>
-        <div class="meta"><span>예제 1개</span><span class="go">열기 →</span></div>
+      <a class="card gold" href="games/index.html">
+        <div class="eyebrow">2회차 · 180분</div>
+        <h3>웹 게임 만들기</h3>
+        <p>두더지 잡기부터 운석 피하기까지. 예시에서 출발해 나만의 게임으로 바꾸고, 폰에서 터치로 플레이합니다.</p>
+        <div class="meta"><span>예제 6개</span><span class="go">열기 →</span></div>
       </a>
     </div>
 
     <h2>🎓 학생 작품</h2>
-    <p class="sub">학생들이 배포한 주소를 여기에 모읍니다.</p>
-    <div class="grid g3" id="students">
-      <!--
-        학생이 주소를 알려주면 아래를 복사해서 이 자리에 붙여넣으세요.
-        href 와 이름, 설명만 바꾸면 됩니다.
-
-        <a class="card" href="https://아이디.github.io" target="_blank" rel="noopener">
-          <div class="eyebrow">1회차</div>
-          <h3>김서연</h3>
-          <p>바다랑 코딩을 좋아하는 고2</p>
-          <div class="meta"><span class="go" style="margin-left:0">보러 가기 →</span></div>
-        </a>
-      -->
+    <div class="board-head">
+      <p class="sub">⭐ <b>별을 가장 많이 받은 친구에게 상품</b>이 있습니다. 마음에 드는 작품에 별을 눌러주세요.</p>
+      <div class="board-tools">
+        <span class="checked" id="checked"></span>
+        <button class="refresh" id="refresh" type="button">↻ 다시 세기</button>
+      </div>
     </div>
-    <div class="empty" id="emptyMsg">
+    <div class="list" id="students"></div>
+    <div class="empty" id="emptyMsg" hidden>
       아직 등록된 작품이 없습니다<br>
-      <span style="font-size:12.5px">index.html 의 “학생 작품” 부분에 주소를 추가하세요</span>
+      <span style="font-size:12.5px">index.html 맨 아래 <code>학생들</code> 목록에 한 줄씩 추가하세요</span>
     </div>
 
-    <script>
-      if (document.getElementById("students").children.length > 0)
-        document.getElementById("emptyMsg").hidden = true;
-    </script>
+    <div class="tip">
+      <b>별 세는 규칙</b> — 자기 저장소에 누른 별은 세지 않습니다 ·
+      별을 누르려면 깃허브 로그인이 필요합니다 · 숫자는 깃허브에서 직접 가져옵니다
+    </div>
+
     <footer>바이브코딩 워크숍 · 강사용 시연 페이지<br>LoL 챔피언 데이터 및 이미지 © Riot Games — 비상업 목적 사용</footer>
   </div></main>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  학생 작품 — 여기에 한 줄씩 추가하세요
+//
+//  이름   : 카드에 보일 이름
+//  github : 학생의 깃허브 아이디 (필수)
+//  저장소 : 비워두면 "아이디.github.io" 로 봅니다
+//  한줄   : 작품 소개 (선택)
+// ─────────────────────────────────────────────────────────────
+const 학생들 = [
+  // { 이름: "김서연", github: "seoyeon-kim", 한줄: "두더지 대신 고양이 잡기" },
+  // { 이름: "박지훈", github: "jihoon-park", 저장소: "my-game", 한줄: "운석 피하기 2인용" },
+];
+
+const 캐시수명 = 5 * 60 * 1000;   // 5분 안에 다시 열면 깃허브에 다시 묻지 않습니다
+const 메달 = ["🥇", "🥈", "🥉"];
+
+const 목록 = 학생들
+  .filter(s => s && s.github)
+  .map(s => {
+    const 아이디 = String(s.github).trim();
+    const 저장소 = String(s.저장소 || `${아이디}.github.io`).trim();
+    const 호스트 = `https://${아이디.toLowerCase()}.github.io`;
+    return {
+      ...s, 아이디, 저장소,
+      사이트: 저장소.toLowerCase() === `${아이디.toLowerCase()}.github.io` ? `${호스트}/` : `${호스트}/${저장소}/`,
+      저장소주소: `https://github.com/${아이디}/${저장소}`,
+      별: null, 오류: null,
+    };
+  });
+
+if (!목록.length) document.getElementById("emptyMsg").hidden = false;
+document.getElementById("refresh").addEventListener("click", () => 전부세기(true));
+그리기();
+전부세기(false);
+
+async function 전부세기(강제) {
+  if (!목록.length) return;
+  const 버튼 = document.getElementById("refresh");
+  버튼.disabled = true;
+  await Promise.all(목록.map(async 학생 => Object.assign(학생, await 별세기(학생, 강제))));
+  document.getElementById("checked").textContent =
+    new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" }) + " 기준";
+  그리기();
+  setTimeout(() => (버튼.disabled = false), 10000);   // 연타 방지
+}
+
+async function 별세기(학생, 강제) {
+  const 열쇠 = `stars:${학생.아이디}/${학생.저장소}`.toLowerCase();
+  let 저장된 = null;
+  try { 저장된 = JSON.parse(localStorage.getItem(열쇠)); } catch (e) {}
+  if (!강제 && 저장된 && Date.now() - 저장된.t < 캐시수명) return { 별: 저장된.n, 많음: 저장된.많음, 오류: null };
+
+  try {
+    // 별 누른 사람 목록을 받아서, 저장소 주인 본인은 빼고 셉니다
+    const 응답 = await fetch(
+      `https://api.github.com/repos/${encodeURIComponent(학생.아이디)}/${encodeURIComponent(학생.저장소)}/stargazers?per_page=100`,
+      { headers: { Accept: "application/vnd.github+json" } });
+
+    if (응답.status === 404) return { 별: null, 오류: "저장소를 못 찾음" };
+    if (응답.status === 403 || 응답.status === 429) {
+      // 깃허브 조회 한도 (로그인 없이 시간당 60번) — 예전 숫자라도 보여줍니다
+      return 저장된 ? { 별: 저장된.n, 많음: 저장된.많음, 오류: null } : { 별: null, 오류: "잠시 후 다시" };
+    }
+    if (!응답.ok) return { 별: null, 오류: `오류 ${응답.status}` };
+
+    const 사람들 = await 응답.json();
+    const n = 사람들.filter(u => String(u.login).toLowerCase() !== 학생.아이디.toLowerCase()).length;
+    const 많음 = 사람들.length >= 100;
+    try { localStorage.setItem(열쇠, JSON.stringify({ n, 많음, t: Date.now() })); } catch (e) {}
+    return { 별: n, 많음, 오류: null };
+  } catch (e) {
+    return 저장된 ? { 별: 저장된.n, 많음: 저장된.많음, 오류: null } : { 별: null, 오류: "연결 안 됨" };
+  }
+}
+
+function 그리기() {
+  const 다셈 = 목록.every(s => s.별 !== null || s.오류);
+  const 순서 = 다셈
+    ? [...목록].sort((a, b) => (b.별 ?? -1) - (a.별 ?? -1) || String(a.이름).localeCompare(String(b.이름), "ko"))
+    : 목록;
+  const 최고 = Math.max(0, ...목록.map(s => s.별 ?? 0));
+  const 공동1위 = 목록.filter(s => s.별 === 최고).length > 1;
+
+  document.getElementById("students").innerHTML = 순서.map(s => {
+    let 순위 = null;
+    if (다셈 && s.별 !== null) 순위 = 1 + 목록.filter(o => (o.별 ?? -1) > s.별).length;
+    const 메달있음 = 순위 && 순위 <= 3 && s.별 > 0;
+    const 일등 = 순위 === 1 && s.별 > 0;
+    const 숫자칸 = s.오류
+      ? `<div class="count err"><b>${안전(s.오류)}</b></div>`
+      : s.별 === null
+        ? `<div class="count wait"><b>…</b><small>세는 중</small></div>`
+        : `<div class="count"><b>${s.별}${s.많음 ? "+" : ""}</b><small>${일등 && 공동1위 ? "공동 1위" : "⭐ 별"}</small></div>`;
+    return `
+      <div class="st${일등 ? " top" : ""}${메달있음 ? " medal" : ""}">
+        <div class="rank">${메달있음 ? 메달[순위 - 1] : (순위 ?? "·")}</div>
+        <div class="who">
+          <h3>${안전(s.이름 || s.아이디)} <span class="id">@${안전(s.아이디)}</span></h3>
+          ${s.한줄 ? `<p>${안전(s.한줄)}</p>` : ""}
+          <div class="links">
+            <a href="${s.사이트}" target="_blank" rel="noopener">🎮 작품 보기</a>
+            <a class="star" href="${s.저장소주소}" target="_blank" rel="noopener">⭐ 별 주러 가기</a>
+          </div>
+        </div>
+        ${숫자칸}
+      </div>`;
+  }).join("");
+}
+
+function 안전(글자) {
+  return String(글자).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+</script>
 </body>
 </html>

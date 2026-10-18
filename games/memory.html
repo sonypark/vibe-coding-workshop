@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>같은 그림 찾기</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 24px 14px;
+    background: #fdf6ec; color: #3b2f2f;
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    touch-action: manipulation; user-select: none;
+  }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  .stats { display: flex; gap: 18px; margin: 10px 0 18px; font-size: 16px; color: #7a6a5c; }
+  .stats b { color: #3b2f2f; font-variant-numeric: tabular-nums; }
+
+  .board {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    width: 100%; max-width: 380px;
+  }
+  .card {
+    aspect-ratio: 3 / 4; perspective: 600px; cursor: pointer;
+  }
+  .inner {
+    position: relative; width: 100%; height: 100%;
+    transition: transform .35s; transform-style: preserve-3d;
+  }
+  .card.open .inner, .card.done .inner { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; border-radius: 12px; backface-visibility: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .back {
+    background: #e07a5f;
+    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.15) 0 6px, transparent 6px 12px);
+    box-shadow: 0 3px 0 #b05a42;
+  }
+  .front {
+    background: #fff; transform: rotateY(180deg); font-size: 38px;
+    box-shadow: 0 3px 0 #e2d4c2;
+  }
+  .card.done .front { background: #e8f5e9; box-shadow: 0 3px 0 #a5d6a7; }
+
+  .win {
+    margin-top: 22px; text-align: center; font-size: 19px; min-height: 2.6em; line-height: 1.5;
+  }
+  button {
+    margin-top: 10px; font-size: 17px; font-weight: bold; font-family: inherit;
+    padding: 12px 30px; border: 0; border-radius: 26px; background: #3d405b; color: #fff; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>🃏 같은 그림 찾기</h1>
+  <div class="stats">
+    <span>뒤집은 횟수 <b id="moves">0</b></span>
+    <span>시간 <b id="time">0</b>초</span>
+    <span>찾은 짝 <b id="pairs">0</b>/8</span>
+  </div>
+
+  <div class="board" id="board"></div>
+  <div class="win" id="win"></div>
+  <button id="restart">새로 섞기</button>
+
+<script>
+  // 그림 8개를 바꾸면 테마가 바뀝니다 — 과일, 동물, 좋아하는 캐릭터…
+  const 그림들 = ["🍎", "🍌", "🍇", "🍓", "🍑", "🍍", "🥝", "🍒"];
+
+  let 열린카드 = [], 뒤집은횟수 = 0, 찾은짝 = 0, 시작시각 = null, 시계 = null, 잠금 = false;
+  const board = document.getElementById("board");
+
+  document.getElementById("restart").addEventListener("click", 새게임);
+  새게임();
+
+  function 새게임() {
+    clearInterval(시계);
+    열린카드 = []; 뒤집은횟수 = 0; 찾은짝 = 0; 시작시각 = null; 잠금 = false;
+    document.getElementById("win").textContent = "";
+    갱신(0);
+
+    const 덱 = 섞기([...그림들, ...그림들]);
+    board.innerHTML = "";
+    덱.forEach(그림 => {
+      const c = document.createElement("div");
+      c.className = "card";
+      c.dataset.그림 = 그림;
+      c.innerHTML = `<div class="inner"><div class="face back"></div><div class="face front">${그림}</div></div>`;
+      c.addEventListener("click", () => 뒤집기(c));
+      board.appendChild(c);
+    });
+  }
+
+  function 뒤집기(c) {
+    if (잠금 || c.classList.contains("open") || c.classList.contains("done")) return;
+    if (!시작시각) {
+      시작시각 = Date.now();
+      시계 = setInterval(() => 갱신(), 250);
+    }
+    c.classList.add("open");
+    열린카드.push(c);
+
+    if (열린카드.length === 2) {
+      뒤집은횟수++;
+      const [a, b] = 열린카드;
+      if (a.dataset.그림 === b.dataset.그림) {
+        a.classList.replace("open", "done");
+        b.classList.replace("open", "done");
+        열린카드 = [];
+        찾은짝++;
+        if (찾은짝 === 그림들.length) 이겼다();
+      } else {
+        잠금 = true;
+        setTimeout(() => {
+          a.classList.remove("open");
+          b.classList.remove("open");
+          열린카드 = [];
+          잠금 = false;
+        }, 700);
+      }
+      갱신();
+    }
+  }
+
+  function 이겼다() {
+    clearInterval(시계);
+    const 초 = Math.round((Date.now() - 시작시각) / 1000);
+    document.getElementById("win").innerHTML =
+      `🎉 다 찾았어요!<br><b>${뒤집은횟수}번</b> 만에, <b>${초}초</b> 걸렸어요`;
+  }
+
+  function 갱신(강제초) {
+    const 초 = 강제초 ?? (시작시각 ? Math.floor((Date.now() - 시작시각) / 1000) : 0);
+    document.getElementById("moves").textContent = 뒤집은횟수;
+    document.getElementById("time").textContent = 초;
+    document.getElementById("pairs").textContent = 찾은짝;
+  }
+
+  function 섞기(배열) {
+    for (let i = 배열.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [배열[i], 배열[j]] = [배열[j], 배열[i]];
+    }
+    return 배열;
+  }
+</script>
+</body>
+</html>

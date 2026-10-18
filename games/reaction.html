@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>반응속도 테스트</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    touch-action: manipulation; user-select: none;
+  }
+  #screen {
+    height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 24px; cursor: pointer; transition: background .08s;
+    color: #fff;
+  }
+  #screen.ready   { background: #37474f; }
+  #screen.wait    { background: #c62828; }
+  #screen.go      { background: #2e7d32; }
+  #screen.early   { background: #ef6c00; }
+  #screen.result  { background: #1565c0; }
+  .big   { font-size: 44px; font-weight: 800; margin: 0 0 10px; letter-spacing: -1px; }
+  .small { font-size: 18px; opacity: .9; margin: 0; line-height: 1.6; }
+  .tries { display: flex; gap: 8px; margin-top: 26px; flex-wrap: wrap; justify-content: center; }
+  .tries span {
+    background: rgba(255,255,255,.18); border-radius: 20px; padding: 6px 12px; font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+  .tries span.empty { opacity: .35; }
+</style>
+</head>
+<body>
+  <div id="screen" class="ready">
+    <p class="big" id="big">⚡ 반응속도 테스트</p>
+    <p class="small" id="small">화면이 <b>초록색</b>으로 바뀌면 바로 누르세요<br>다섯 번 해서 평균을 냅니다<br><br>시작하려면 화면을 누르세요</p>
+    <div class="tries" id="tries"></div>
+  </div>
+
+<script>
+  const 횟수 = 5;
+  const screen = document.getElementById("screen");
+  let 상태 = "ready";       // ready → wait → go → result
+  let 시작시각 = 0, 대기 = null;
+  let 기록 = [];
+
+  screen.addEventListener("pointerdown", 눌렀을때);
+  기록표시();
+
+  function 눌렀을때() {
+    if (상태 === "ready" || 상태 === "result" || 상태 === "early") {
+      if (기록.length >= 횟수) 기록 = [];
+      기다리기();
+    } else if (상태 === "wait") {
+      clearTimeout(대기);
+      바꾸기("early", "너무 빨라요! 😅", "초록색이 될 때까지 기다려야 해요<br>눌러서 다시");
+    } else if (상태 === "go") {
+      const ms = Math.round(performance.now() - 시작시각);
+      기록.push(ms);
+      기록표시();
+      if (기록.length >= 횟수) {
+        const 평균 = Math.round(기록.reduce((a, b) => a + b, 0) / 기록.length);
+        바꾸기("result", `평균 ${평균}ms`, `${평가(평균)}<br><br>눌러서 다시 하기`);
+      } else {
+        바꾸기("result", `${ms}ms`, `${기록.length} / ${횟수}번째<br>눌러서 계속`);
+      }
+    }
+  }
+
+  function 기다리기() {
+    바꾸기("wait", "기다리세요…", "초록색이 되면 누르세요");
+    대기 = setTimeout(() => {
+      시작시각 = performance.now();
+      바꾸기("go", "지금!", "");
+    }, 1200 + Math.random() * 2800);
+  }
+
+  function 바꾸기(새상태, 큰글, 작은글) {
+    상태 = 새상태;
+    screen.className = 새상태;
+    document.getElementById("big").textContent = 큰글;
+    document.getElementById("small").innerHTML = 작은글;
+  }
+
+  function 기록표시() {
+    let html = "";
+    for (let i = 0; i < 횟수; i++) {
+      html += 기록[i] !== undefined
+        ? `<span>${기록[i]}ms</span>`
+        : `<span class="empty">–</span>`;
+    }
+    document.getElementById("tries").innerHTML = html;
+  }
+
+  function 평가(ms) {
+    if (ms < 200) return "🦅 독수리급 반사신경";
+    if (ms < 260) return "🐆 아주 빨라요";
+    if (ms < 330) return "🙂 평균이에요";
+    return "🐢 조금 느긋하네요";
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>웹 게임 예시 — 바이브코딩 워크숍</title>
+<style>
+  :root {
+    --bg:#f4f6f8; --card:#fff; --ink:#1a2530; --ink2:#5f7183; --ink3:#93a3b3; --line:#dfe5ec;
+    --teal:#177d8c; --easy:#2e7d32; --mid:#b26a00; --hard:#c62828; --pro:#4a3aa7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 30px 16px 70px; background: var(--bg); color: var(--ink);
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; line-height: 1.6;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  a.back { font-size: 13px; color: var(--ink3); text-decoration: none; }
+  h1 { font-size: 27px; margin: 10px 0 6px; letter-spacing: -.6px; }
+  .sub { margin: 0 0 16px; color: var(--ink2); font-size: 15px; }
+
+  .rules { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .rules span {
+    background: #e3f0f2; color: var(--teal); font-size: 13px; font-weight: bold;
+    padding: 5px 12px; border-radius: 20px;
+  }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .g {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px; display: flex; flex-direction: column;
+  }
+  .head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .emoji {
+    width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; font-size: 28px; flex-shrink: 0;
+  }
+  .name { font-size: 17px; font-weight: bold; }
+  .lv { font-size: 11.5px; font-weight: bold; padding: 2px 8px; border-radius: 10px; color: #fff; }
+  .lv.easy { background: var(--easy); } .lv.mid { background: var(--mid); }
+  .lv.hard { background: var(--hard); } .lv.pro { background: var(--pro); }
+  .desc { font-size: 14px; color: var(--ink2); margin: 0 0 12px; }
+
+  .ideas { font-size: 13.5px; margin: 0 0 12px; padding-left: 18px; color: var(--ink); }
+  .ideas li { margin: 2px 0; }
+  .ideas-title { font-size: 12px; font-weight: bold; color: var(--ink3); margin-bottom: 4px; letter-spacing: .3px; }
+
+  details { margin-bottom: 12px; }
+  summary { font-size: 13px; font-weight: bold; color: var(--teal); cursor: pointer; }
+  pre {
+    background: #f3f6f5; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+    font-size: 12.5px; white-space: pre-wrap; margin: 8px 0 6px; line-height: 1.55;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .copy {
+    font-size: 12px; font-family: inherit; padding: 4px 10px; border-radius: 6px;
+    border: 1px solid var(--line); background: #fff; cursor: pointer; color: var(--ink2);
+  }
+
+  a.play {
+    margin-top: auto; display: block; text-align: center; padding: 11px; border-radius: 10px;
+    background: var(--ink); color: #fff; text-decoration: none; font-weight: bold; font-size: 15px;
+  }
+  a.play:hover { background: var(--teal); }
+
+  .tip {
+    background: #fff8e8; border-left: 3px solid #b07d2e; border-radius: 9px;
+    padding: 14px 16px; margin-top: 26px; font-size: 14px; color: #6b5322; line-height: 1.7;
+  }
+  .tip > b:first-child { display: block; margin-bottom: 4px; }
+  footer { margin-top: 34px; font-size: 12px; color: var(--ink3); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 홈으로</a>
+  <h1>🎮 웹 게임 만들기</h1>
+  <p class="sub">2회차에 각자 하나씩 만듭니다. 아래는 예시예요 — 그대로 따라 하지 말고, 여기서 출발해서 <b>나만의 게임</b>으로 바꿔보세요.</p>
+  <div class="rules">
+    <span>HTML 파일 한 장</span>
+    <span>더블클릭으로 열림</span>
+    <span>폰에서 터치로 조작</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="tip">
+    <b>발표할 때 이것만 이야기하면 됩니다</b>
+    ① AI가 처음 만들어 준 것 → ② 내가 바꾼 것 세 가지 → ③ 그중 제일 애먹은 것.<br>
+    처음 받은 그대로 가져오면 할 이야기가 없어요. <b>바꾼 게 곧 내 게임</b>입니다.
+  </div>
+
+  <footer>롤 챔피언 이미지·데이터 © Riot Games · 비상업 팬 콘텐츠</footer>
+</div>
+
+<script>
+  const 게임들 = [
+    {
+      파일: "mole.html", 이름: "두더지 잡기", 이모지: "🔨", 색: "#dcedc8",
+      난이도: ["easy", "쉬움"],
+      설명: "올라오는 두더지를 30초 동안 최대한 많이 잡기. 강사 시연용으로 좋습니다.",
+      프롬프트:
+`두더지 잡기 게임을 만들어줘. 코딩은 처음이야.
+
+- 3x3 구멍에서 두더지가 랜덤으로 올라옴
+- 터치하면 점수 +1, 30초 제한
+- 최고 기록은 새로고침해도 남게
+
+조건
+- index.html 파일 하나로
+- 휴대폰에서 터치로 할 수 있게
+- 한 번에 보여줘`,
+      바꿔보기: ["두더지를 다른 캐릭터로 (🐱 👻 🧟)", "가끔 폭탄이 나와서 누르면 감점", "시간이 갈수록 더 빨리 올라오게"],
+    },
+    {
+      파일: "reaction.html", 이름: "반응속도 테스트", 이모지: "⚡", 색: "#ffcdd2",
+      난이도: ["easy", "쉬움"],
+      설명: "화면이 초록색으로 바뀌는 순간 누르기. 코드가 가장 짧아서 첫 게임으로 딱입니다.",
+      프롬프트:
+`반응속도 테스트 게임을 만들어줘. 코딩은 처음이야.
+
+- 화면 전체가 빨간색 → 랜덤 시간 뒤 초록색
+- 초록색일 때 누르면 걸린 시간(ms)을 보여줌
+- 빨간색일 때 누르면 "너무 빨라요"
+- 5번 해서 평균을 보여줘
+
+조건
+- index.html 파일 하나로, 휴대폰 터치 가능하게
+- 한 번에 보여줘`,
+      바꿔보기: ["평균에 따라 동물 등급 매기기", "친구랑 번갈아 하는 2인 모드", "초록 대신 가끔 파란색 함정"],
+    },
+    {
+      파일: "updown.html", 이름: "업다운", 이모지: "🔢", 색: "#e1bee7",
+      난이도: ["easy", "쉬움"],
+      설명: "1~100 사이 숫자를 7번 안에 맞히기. 그림 없이 논리만으로 만드는 게임.",
+      프롬프트:
+`업다운 숫자 맞히기 게임을 만들어줘. 코딩은 처음이야.
+
+- 컴퓨터가 1~100 중 숫자 하나를 고름
+- 내가 입력하면 UP / DOWN 알려줌
+- 기회는 7번, 하트로 남은 기회 표시
+- 지금까지 입력한 숫자를 아래에 기록
+
+조건
+- index.html 파일 하나로, 휴대폰에서 숫자 키패드 뜨게
+- 한 번에 보여줘`,
+      바꿔보기: ["범위를 1~1000으로, 기회는 10번", "정답에 가까우면 '뜨거워요' 힌트", "몇 번 만에 맞혔는지 순위 기록"],
+    },
+    {
+      파일: "memory.html", 이름: "같은 그림 찾기", 이모지: "🃏", 색: "#ffe0b2",
+      난이도: ["mid", "보통"],
+      설명: "카드 16장을 두 장씩 뒤집어 짝 맞추기. 그림 8개만 바꾸면 테마가 바뀝니다.",
+      프롬프트:
+`같은 그림 찾기(메모리) 게임을 만들어줘. 코딩은 처음이야.
+
+- 카드 16장 (그림 8종류 × 2장), 4x4 배치
+- 두 장을 뒤집어서 같으면 그대로, 다르면 다시 덮기
+- 뒤집은 횟수와 걸린 시간 표시
+- 카드 뒤집을 때 돌아가는 애니메이션
+
+조건
+- index.html 파일 하나로, 휴대폰 터치 가능하게
+- 한 번에 보여줘`,
+      바꿔보기: ["그림을 내가 좋아하는 것으로 (아이돌, 음식…)", "6x6으로 늘리고 제한 시간 추가", "다 맞히면 폭죽 효과"],
+    },
+    {
+      파일: "dodge.html", 이름: "운석 피하기", 이모지: "🚀", 색: "#c5cae9",
+      난이도: ["hard", "도전"],
+      설명: "떨어지는 운석을 손가락으로 끌어서 피하기. 화면을 계속 다시 그리는 진짜 게임 구조.",
+      프롬프트:
+`떨어지는 운석 피하기 게임을 만들어줘. 코딩은 처음이야.
+
+- 화면 아래 우주선, 위에서 운석이 떨어짐
+- 손가락으로 끌어서 좌우 이동 (PC는 방향키)
+- 부딪히면 게임 오버, 버틴 시간이 점수
+- 시간이 갈수록 운석이 빨라지고 많아짐
+
+조건
+- index.html 파일 하나로, canvas 사용
+- 휴대폰 화면 꽉 차게, 터치로 조작
+- 한 번에 보여줘`,
+      바꿔보기: ["가끔 ⭐이 떨어져서 먹으면 보너스", "목숨 3개로 늘리기", "배경색이 시간 따라 바뀌게"],
+    },
+    {
+      파일: "lol-quiz.html", 이름: "롤 챔피언 맞히기", 이모지: "⚔️", 색: "#d7ccc8",
+      난이도: ["pro", "심화"],
+      설명: "흐린 챔피언 사진을 보고 4지선다. 라이엇이 공개한 진짜 데이터를 불러와서 만듭니다.",
+      프롬프트:
+`롤 챔피언 이름 맞히기 퀴즈를 만들어줘. 코딩은 처음이야.
+
+데이터 주소 (API 키 필요 없음):
+https://ddragon.leagueoflegends.com/cdn/16.17.1/data/ko_KR/champion.json
+- 맨 바깥 data 안이 객체라서 Object.values 로 배열로 바꿔야 해
+- 이미지: https://ddragon.leagueoflegends.com/cdn/16.17.1/img/champion/(image.full)
+
+만들 것
+- 흐리게 처리한 챔피언 사진 + 이름 4지선다
+- 고르면 사진이 선명해지고 정답 표시, 10문제
+
+조건
+- index.html 하나로, 휴대폰 터치 가능하게
+- 한 번에 보여줘`,
+      바꿔보기: ["사진 대신 스킬 이름으로 문제 내기", "역할(탱커·마법사…)로 문제 범위 고르기", "틀린 챔피언만 모아서 복습 모드"],
+    },
+  ];
+
+  document.getElementById("grid").innerHTML = 게임들.map((g, i) => `
+    <div class="g">
+      <div class="head">
+        <div class="emoji" style="background:${g.색}">${g.이모지}</div>
+        <div>
+          <div class="name">${g.이름}</div>
+          <span class="lv ${g.난이도[0]}">${g.난이도[1]}</span>
+        </div>
+      </div>
+      <p class="desc">${g.설명}</p>
+      <div class="ideas-title">여기서 바꿔볼 것</div>
+      <ul class="ideas">${g.바꿔보기.map(t => `<li>${t}</li>`).join("")}</ul>
+      <details>
+        <summary>시작 프롬프트 보기</summary>
+        <pre id="p${i}">${g.프롬프트.replace(/</g, "&lt;")}</pre>
+        <button class="copy" data-i="${i}">복사</button>
+      </details>
+      <a class="play" href="${g.파일}">해보기 →</a>
+    </div>`).join("");
+
+  document.getElementById("grid").addEventListener("click", async e => {
+    const b = e.target.closest(".copy");
+    if (!b) return;
+    try {
+      await navigator.clipboard.writeText(게임들[b.dataset.i].프롬프트);
+      b.textContent = "복사됨 ✓";
+    } catch (err) {
+      b.textContent = "직접 선택해서 복사하세요";
+    }
+    setTimeout(() => (b.textContent = "복사"), 1600);
+  });
+</script>
+</body>
+</html>

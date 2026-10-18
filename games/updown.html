@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>업다운 숫자 맞히기</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 28px 16px;
+    background: #1a1033; color: #f3eaff;
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    display: flex; justify-content: center; touch-action: manipulation;
+  }
+  .card {
+    width: 100%; max-width: 380px; background: #2a1b4d; border-radius: 22px;
+    padding: 26px 22px; box-shadow: 0 12px 40px rgba(0,0,0,.4);
+  }
+  h1 { margin: 0 0 4px; font-size: 26px; text-align: center; }
+  .sub { margin: 0 0 22px; text-align: center; color: #b8a6dc; font-size: 15px; }
+
+  .hint {
+    height: 92px; display: flex; align-items: center; justify-content: center;
+    font-size: 40px; font-weight: 800; border-radius: 16px; background: #1a1033;
+    margin-bottom: 18px; letter-spacing: -1px;
+  }
+  .hint.up   { color: #ff8a65; }
+  .hint.down { color: #4fc3f7; }
+  .hint.win  { color: #ffd54f; }
+
+  .row { display: flex; gap: 8px; }
+  input {
+    flex: 1; min-width: 0; font-size: 26px; font-weight: bold; text-align: center;
+    padding: 12px; border-radius: 14px; border: 2px solid #4b3680;
+    background: #120b24; color: #fff; font-family: inherit;
+  }
+  input:focus { outline: none; border-color: #b388ff; }
+  button {
+    font-size: 18px; font-weight: bold; font-family: inherit; padding: 0 22px;
+    border: 0; border-radius: 14px; background: #b388ff; color: #1a1033; cursor: pointer;
+  }
+  button:active { transform: scale(.96); }
+
+  .life { display: flex; justify-content: center; gap: 4px; margin: 18px 0 8px; font-size: 22px; }
+  .history { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; min-height: 34px; }
+  .history span {
+    padding: 4px 10px; border-radius: 12px; font-size: 14px; font-weight: bold;
+    font-variant-numeric: tabular-nums;
+  }
+  .history .up   { background: #4e2a28; color: #ff8a65; }
+  .history .down { background: #1d3a4a; color: #4fc3f7; }
+  .again { width: 100%; margin-top: 18px; padding: 14px; display: none; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔢 업다운</h1>
+    <p class="sub">1부터 100 사이 숫자 하나를 골랐어요</p>
+
+    <div class="hint" id="hint">?</div>
+
+    <form class="row" id="form">
+      <input type="number" id="guess" inputmode="numeric" min="1" max="100" placeholder="숫자" autocomplete="off">
+      <button type="submit">확인</button>
+    </form>
+
+    <div class="life" id="life"></div>
+    <div class="history" id="history"></div>
+    <button class="again" id="again">다시 하기</button>
+  </div>
+
+<script>
+  const 최대숫자 = 100;
+  const 기회 = 7;
+
+  let 정답, 남은기회, 끝났나;
+  const hint = document.getElementById("hint");
+  const input = document.getElementById("guess");
+
+  새게임();
+
+  document.getElementById("form").addEventListener("submit", e => {
+    e.preventDefault();
+    if (끝났나) return;
+    const n = Number(input.value);
+    input.value = "";
+    input.focus();
+    if (!Number.isInteger(n) || n < 1 || n > 최대숫자) {
+      보여주기("", `1~${최대숫자}!`);
+      return;
+    }
+    남은기회--;
+    if (n === 정답) {
+      보여주기("win", "정답! 🎉");
+      끝내기();
+    } else {
+      const 방향 = n < 정답 ? "up" : "down";
+      보여주기(방향, 방향 === "up" ? "UP ⬆" : "DOWN ⬇");
+      기록추가(n, 방향);
+      if (남은기회 === 0) {
+        보여주기("", `정답은 ${정답}`);
+        끝내기();
+      }
+    }
+    목숨표시();
+  });
+
+  document.getElementById("again").addEventListener("click", 새게임);
+
+  function 새게임() {
+    정답 = Math.floor(Math.random() * 최대숫자) + 1;
+    남은기회 = 기회; 끝났나 = false;
+    보여주기("", "?");
+    document.getElementById("history").innerHTML = "";
+    document.getElementById("again").style.display = "none";
+    목숨표시();
+    input.focus();
+  }
+
+  function 보여주기(종류, 글) {
+    hint.className = "hint " + 종류;
+    hint.textContent = 글;
+  }
+
+  function 기록추가(n, 방향) {
+    const s = document.createElement("span");
+    s.className = 방향;
+    s.textContent = n + (방향 === "up" ? " ↑" : " ↓");
+    document.getElementById("history").appendChild(s);
+  }
+
+  function 목숨표시() {
+    document.getElementById("life").textContent = "❤️".repeat(남은기회) + "🤍".repeat(기회 - 남은기회);
+  }
+
+  function 끝내기() {
+    끝났나 = true;
+    document.getElementById("again").style.display = "block";
+  }
+</script>
+</body>
+</html>

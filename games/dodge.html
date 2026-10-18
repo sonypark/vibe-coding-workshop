@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>운석 피하기</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; overflow: hidden; background: #0b0f2a;
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    touch-action: none; user-select: none;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+  .hud {
+    position: fixed; top: 14px; left: 0; right: 0; display: flex; justify-content: space-between;
+    padding: 0 18px; color: #fff; font-size: 17px; font-weight: bold; pointer-events: none;
+    font-variant-numeric: tabular-nums; text-shadow: 0 2px 4px #000;
+  }
+  .overlay {
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; color: #fff;
+    background: rgba(11,15,42,.78); padding: 24px;
+  }
+  .overlay h1 { margin: 0 0 10px; font-size: 36px; }
+  .overlay p  { margin: 0 0 22px; font-size: 16px; line-height: 1.7; color: #c5cae9; }
+  .overlay button {
+    font-size: 20px; font-weight: bold; font-family: inherit; padding: 14px 40px;
+    border: 0; border-radius: 30px; background: #ffca28; color: #0b0f2a; cursor: pointer;
+  }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div class="hud"><span id="score">0초</span><span id="best">최고 0초</span></div>
+
+  <div class="overlay" id="overlay">
+    <h1>🚀 운석 피하기</h1>
+    <p id="guide">손가락으로 우주선을 좌우로 끌어서<br>떨어지는 운석을 피하세요<br>(컴퓨터에선 마우스나 ← → 키)</p>
+    <button id="startBtn">시작</button>
+  </div>
+
+<script>
+  // ── 바꿔보기 좋은 값들 ──
+  const 처음속도 = 3;        // 운석이 떨어지는 속도
+  const 빨라지는정도 = 0.0016; // 시간이 갈수록 얼마나 빨라질지
+  const 운석모양 = "☄️";
+  const 우주선모양 = "🚀";
+
+  const c = document.getElementById("c");
+  const g = c.getContext("2d");
+  let W, H, 배율;
+
+  function 크기맞추기() {
+    배율 = window.devicePixelRatio || 1;
+    W = window.innerWidth; H = window.innerHeight;
+    c.width = W * 배율; c.height = H * 배율;
+    g.setTransform(배율, 0, 0, 배율, 0, 0);
+  }
+  window.addEventListener("resize", 크기맞추기);
+  크기맞추기();
+
+  const 별들 = Array.from({ length: 70 }, () => ({
+    x: Math.random(), y: Math.random(), r: Math.random() * 1.4 + .3, v: Math.random() * .4 + .2,
+  }));
+
+  let 우주선, 운석들, 진행중 = false, 시작시각, 마지막프레임, 생성대기, 목표x = null, 키 = {};
+  let 최고 = 0;
+  try { 최고 = Number(localStorage.getItem("dodge-best")) || 0; } catch (e) {}
+  document.getElementById("best").textContent = `최고 ${최고}초`;
+
+  // ── 조작: 끌기 / 마우스 / 키보드 ──
+  const 따라가기 = e => { if (진행중) 목표x = e.clientX; };
+  c.addEventListener("pointerdown", 따라가기);
+  c.addEventListener("pointermove", e => { if (e.pressure > 0 || e.pointerType === "mouse") 따라가기(e); });
+  window.addEventListener("keydown", e => { 키[e.key] = true; });
+  window.addEventListener("keyup",   e => { 키[e.key] = false; });
+
+  document.getElementById("startBtn").addEventListener("click", 시작);
+
+  function 시작() {
+    우주선 = { x: W / 2, y: H - 90, r: 22 };
+    운석들 = []; 목표x = null; 생성대기 = 0;
+    시작시각 = 마지막프레임 = performance.now();
+    진행중 = true;
+    document.getElementById("overlay").classList.add("hidden");
+    requestAnimationFrame(한프레임);
+  }
+
+  function 한프레임(지금) {
+    const dt = Math.min(2, (지금 - 마지막프레임) / 16.67);
+    마지막프레임 = 지금;
+    const 초 = (지금 - 시작시각) / 1000;
+    const 속도 = 처음속도 + 초 * 60 * 빨라지는정도 * 처음속도;
+
+    // 우주선 이동
+    if (키["ArrowLeft"])  목표x = 우주선.x - 30;
+    if (키["ArrowRight"]) 목표x = 우주선.x + 30;
+    if (목표x !== null) 우주선.x += (목표x - 우주선.x) * 0.25 * dt;
+    우주선.x = Math.max(우주선.r, Math.min(W - 우주선.r, 우주선.x));
+
+    // 운석 생성 — 시간이 갈수록 자주
+    생성대기 -= dt;
+    if (생성대기 <= 0) {
+      const r = 16 + Math.random() * 16;
+      운석들.push({ x: r + Math.random() * (W - 2 * r), y: -r, r, 회전: Math.random() * 6 });
+      생성대기 = Math.max(9, 34 - 초 * 0.9);
+    }
+
+    // 움직이고 부딪혔는지 확인
+    for (const m of 운석들) {
+      m.y += 속도 * dt;
+      m.회전 += 0.04 * dt;
+      const dx = m.x - 우주선.x, dy = m.y - 우주선.y;
+      if (Math.hypot(dx, dy) < m.r * 0.75 + 우주선.r * 0.7) return 끝(초);
+    }
+    운석들 = 운석들.filter(m => m.y < H + 50);
+
+    그리기(속도);
+    document.getElementById("score").textContent = `${초.toFixed(1)}초`;
+    if (진행중) requestAnimationFrame(한프레임);
+  }
+
+  function 그리기(속도) {
+    g.fillStyle = "#0b0f2a";
+    g.fillRect(0, 0, W, H);
+    g.fillStyle = "#fff";
+    for (const s of 별들) {
+      s.y = (s.y + s.v * 속도 / 900) % 1;
+      g.globalAlpha = .4 + s.r / 2.5;
+      g.beginPath(); g.arc(s.x * W, s.y * H, s.r, 0, 7); g.fill();
+    }
+    g.globalAlpha = 1;
+    g.textAlign = "center"; g.textBaseline = "middle";
+    for (const m of 운석들) {
+      g.save(); g.translate(m.x, m.y); g.rotate(m.회전);
+      g.font = `${m.r * 2}px sans-serif`; g.fillText(운석모양, 0, 0);
+      g.restore();
+    }
+    g.save(); g.translate(우주선.x, 우주선.y); g.rotate(-Math.PI / 4);
+    g.font = `${우주선.r * 2.2}px sans-serif`; g.fillText(우주선모양, 0, 0);
+    g.restore();
+  }
+
+  function 끝(초) {
+    진행중 = false;
+    const 기록 = Math.round(초 * 10) / 10;
+    let 문구 = `${기록}초 버텼어요`;
+    if (기록 > 최고) {
+      최고 = 기록;
+      try { localStorage.setItem("dodge-best", 최고); } catch (e) {}
+      문구 += "<br>🎉 신기록!";
+    }
+    document.getElementById("best").textContent = `최고 ${최고}초`;
+    document.querySelector("#overlay h1").textContent = "💥 쾅!";
+    document.getElementById("guide").innerHTML = 문구;
+    document.getElementById("startBtn").textContent = "다시 하기";
+    document.getElementById("overlay").classList.remove("hidden");
+  }
+
+  // 첫 화면 배경
+  우주선 = { x: W / 2, y: H - 90, r: 22 }; 운석들 = [];
+  그리기(처음속도);
+</script>
+</body>
+</html>
