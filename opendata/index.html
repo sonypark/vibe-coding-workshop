@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공공데이터 실습</title>
+<style>
+  :root{
+    --bg:#f1f4f7; --card:#fff; --ink:#16202a; --ink2:#5c6f80; --ink3:#93a3b3;
+    --line:#dde4ec; --teal:#177d8c; --teal-soft:#e3f0f2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:30px 16px 60px;background:var(--bg);color:var(--ink);
+    font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.6}
+  .wrap{max-width:720px;margin:0 auto}
+  a.back{font-size:13px;color:var(--ink3);text-decoration:none}
+  a.back:hover{color:var(--teal)}
+  h1{font-size:25px;margin:10px 0 6px;letter-spacing:-.6px}
+  .sub{margin:0 0 26px;color:var(--ink2);font-size:14.5px}
+
+  h2{font-size:14px;color:var(--teal);margin:30px 0 4px;display:flex;align-items:center;gap:9px}
+  h2 .badge{background:var(--teal-soft);color:var(--teal);font-size:11.5px;
+    padding:3px 9px;border-radius:20px;font-weight:bold}
+  .note{margin:0 0 14px;font-size:13.5px;color:var(--ink3)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:12px}
+  a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 17px;text-decoration:none;color:inherit;transition:border-color .12s,transform .12s}
+  a.card:hover{border-color:var(--teal);transform:translateY(-2px)}
+  .card .step{font-size:11px;color:var(--ink3);font-weight:bold;letter-spacing:.6px;margin-bottom:4px}
+  .card .t{font-size:15.5px;font-weight:bold;margin-bottom:4px}
+  .card .d{font-size:13px;color:var(--ink2);line-height:1.55}
+
+  .tip{background:#fff8e8;border-left:3px solid #b07d2e;border-radius:9px;
+    padding:13px 15px;margin:16px 0 0;font-size:13.5px;color:#6b5322;line-height:1.6}
+  .tip b{display:block;margin-bottom:3px}
+  code{background:#e6ebf0;padding:1px 5px;border-radius:4px;font-size:12.5px}
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:12.5px;color:var(--ink3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">← 홈으로</a>
+  <h1>📊 공공데이터로 만들기</h1>
+  <p class="sub">서울시가 공개한 진짜 데이터를 화면에 올려봅니다</p>
+
+  <h2>지하철 혼잡도 <span class="badge">기본</span></h2>
+  <p class="note">1~8호선 245개 역 · 요일별 · 30분 단위. 우리 동네 역은 몇 시에 가장 붐빌까요?</p>
+  <div class="grid">
+    <a class="card" href="subway.html">
+      <div class="step">실습 ①</div>
+      <div class="t">역 목록 + 검색</div>
+      <div class="d">역 이름을 치면 즉시 걸러집니다. 붐비는 순서로 정렬돼요</div>
+    </a>
+    <a class="card" href="subway-chart.html">
+      <div class="step">실습 ②</div>
+      <div class="t">＋ 하루 그래프</div>
+      <div class="d">새벽 5시 반부터 자정까지 30분마다. 출퇴근 봉우리가 눈에 보입니다</div>
+    </a>
+  </div>
+
+  <h2>따릉이 신규 가입자 <span class="badge">대안</span></h2>
+  <p class="note">데이터가 96줄뿐이라 훨씬 가볍습니다. 검색보다 <b>비교</b>가 어울리는 데이터예요.</p>
+  <div class="grid">
+    <a class="card" href="bike.html">
+      <div class="step">실습 ① + ②</div>
+      <div class="t">나이대 · 성별 · 월별</div>
+      <div class="d">누가 제일 많이 가입했을까요? 1월과 5월은 왜 이렇게 다를까요?</div>
+    </a>
+  </div>
+
+  <div class="tip">
+    <b>파일을 더블클릭해서 열면 안 됩니다</b>
+    데이터를 불러오는 페이지라 <code>file://</code> 로 열면 브라우저가 막습니다.
+    VS Code의 <b>Live Server</b>로 열거나, 깃허브 페이지에 배포한 주소로 접속하세요.
+    “아무것도 안 나와요”의 대부분이 이 문제입니다.
+  </div>
+
+  <div class="tip" style="border-color:#177d8c;background:#e8f3f5;color:#14535c">
+    <b>이 JSON은 어디서 왔을까요?</b>
+    둘 다 <b>엑셀(CSV) 파일</b>로 받은 것을 웹페이지가 읽을 수 있는 모양으로 바꾼 것입니다.
+    원본 CSV와 변환 스크립트(<code>convert.py</code>)가 같은 폴더에 있으니 열어보세요.
+    지하철 원본은 <b>열이 44개</b>입니다. 그중 필요한 것만 골라 <b>표의 한 줄을 <code>{ }</code> 하나로</b> 바꾼 것이 이 JSON입니다.
+  </div>
+
+  <footer>
+    자료 · <a href="https://data.seoul.go.kr" style="color:var(--ink2)">서울 열린데이터광장</a><br>
+    서울교통공사 지하철 혼잡도 정보 (2026-03-31) · 서울특별시 공공자전거 신규가입자 정보(월별)
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>챔피언 도감</title>
+<style>
+  body {
+    margin: 0; padding: 20px 16px 50px;
+    background: #10131a; color: #e8ecf3;
+    font-family: "Noto Sans CJK KR", "Apple SD Gothic Neo", sans-serif;
+  }
+  .inner { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: #8b95a7; font-size: 13px; margin: 0 0 18px; }
+
+  #search {
+    width: 100%; padding: 13px 15px; font-size: 16px;
+    border: 2px solid #2a3040; border-radius: 10px;
+    background: #1a1f2b; color: #e8ecf3;
+    box-sizing: border-box; font-family: inherit;
+  }
+  #search:focus { outline: none; border-color: #c8aa6e; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0 14px; }
+  .filters button {
+    padding: 7px 14px; font-size: 13px; border-radius: 20px;
+    border: 1px solid #2a3040; background: #1a1f2b; color: #8b95a7;
+    cursor: pointer; font-family: inherit;
+  }
+  .filters button.on { background: #c8aa6e; color: #10131a; border-color: #c8aa6e; font-weight: bold; }
+
+  .count { font-size: 13px; color: #c8aa6e; margin: 0 0 12px; font-weight: bold; }
+
+  .chart { background: #1a1f2b; border-radius: 12px; padding: 16px; margin-bottom: 18px; }
+  .chart h2 { font-size: 15px; margin: 0 0 2px; }
+  .chart .cap { font-size: 12px; color: #8b95a7; margin: 0 0 14px; }
+  .bar { display: grid; grid-template-columns: 60px 1fr 46px; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .bar .lb { font-size: 12px; color: #b9c2d0; text-align: right; }
+  .bar .tr { background: #242a38; border-radius: 4px; height: 18px; overflow: hidden; }
+  .bar .fl { height: 100%; border-radius: 4px; }
+  .bar .vl { font-size: 12px; color: #c8aa6e; font-weight: bold; text-align: right; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: #8b95a7; margin-top: 10px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; }
+  .finding {
+    background: #2a2415; border-left: 3px solid #c8aa6e; border-radius: 8px;
+    padding: 12px 14px; font-size: 13.5px; color: #e0d5b8; line-height: 1.65; margin-top: 14px;
+  }
+
+  .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .card {
+    background: #1a1f2b; border-radius: 12px; padding: 14px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .card .pic {
+    width: 56px; height: 56px; border-radius: 10px; flex: 0 0 auto;
+    background: #2a3040; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: bold; color: #c8aa6e; overflow: hidden;
+  }
+  .card .pic img { width: 100%; height: 100%; display: block; }
+  .card .body { min-width: 0; flex: 1; }
+  .card .nm { font-weight: bold; font-size: 15px; margin-bottom: 1px; }
+  .card .tt { font-size: 11.5px; color: #8b95a7; margin-bottom: 7px; }
+  .card .tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+  .card .tag { font-size: 10.5px; background: #242a38; color: #b9c2d0; padding: 2px 7px; border-radius: 8px; }
+  .stat { display: grid; grid-template-columns: 38px 1fr 18px; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .stat .k { font-size: 10px; color: #6b7484; }
+  .stat .t { background: #242a38; border-radius: 4px; height: 7px; overflow: hidden; }
+  .stat .f {
+    display: block;              /* span은 인라인이라 이게 없으면 너비·높이가 안 먹습니다 */
+    height: 100%; border-radius: 4px; min-width: 2px;
+  }
+  .stat .v { font-size: 10.5px; color: #b9c2d0; text-align: right; font-weight: bold; }
+  .stat.zero .f { min-width: 0; }
+  .stat.zero .v { color: #6b7484; }
+  .warn { color: #e08a6a; font-size: 11px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="inner">
+  <h1>⚔️ 챔피언 도감</h1>
+  <p class="sub">Riot Data Dragon · 버전 <span id="ver">16.17.1</span></p>
+
+  <input type="text" id="search" placeholder="챔피언 이름을 검색해보세요 (예: 야스오)">
+
+  <div class="filters" id="filters"></div>
+  <p class="count" id="count">불러오는 중...</p>
+
+  <div class="chart">
+    <h2>역할별 평균 능력치</h2>
+    <p class="cap">1레벨 기준 · 체력과 공격력</p>
+    <div id="bars"></div>
+    <div class="legend">
+      <span><i style="background:#5b8def"></i>체력</span>
+      <span><i style="background:#e0654a"></i>공격력</span>
+    </div>
+    <p class="finding">💡 <b>알게 된 것:</b> 여기에 그래프를 보고 알게 된 것을 한 문장으로 써보세요.</p>
+  </div>
+
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+  // 최신 버전을 자동으로 알아냅니다. 못 알아내면 이 값을 씁니다.
+  let 버전 = "16.17.1";
+  const 역할이름 = {
+    Fighter: "전사", Mage: "마법사", Assassin: "암살자",
+    Marksman: "원거리", Tank: "탱커", Support: "서포터"
+  };
+  let 전체데이터 = [];
+  let 선택한역할 = "전체";
+
+  데이터불러오기();
+
+  async function 데이터불러오기() {
+    // ① 라이엇 서버에서 직접 가져옵니다 (API 키 필요 없음)
+    try {
+      try {
+        const 버전목록 = await (await fetch("https://ddragon.leagueoflegends.com/api/versions.json")).json();
+        버전 = 버전목록[0];   // 맨 앞에 있는 것이 최신 버전
+      } catch (e) {
+        console.warn("최신 버전을 못 가져와서 기본 버전을 씁니다:", 버전);
+      }
+      const 데이터 = await (await fetch(`https://ddragon.leagueoflegends.com/cdn/${버전}/data/ko_KR/champion.json`)).json();
+      데이터적용(데이터, "라이엇 서버");
+      return;
+    } catch (e) {
+      console.warn("라이엇 서버에 연결하지 못했습니다. 같은 폴더의 champion.json 을 찾아봅니다.");
+    }
+
+    // ② 실패하면(네트워크가 막혀 있는 경우) 같은 폴더의 champion.json 을 씁니다
+    try {
+      const 데이터 = await (await fetch("./champion.json")).json();
+      데이터적용(데이터, "내 저장소의 파일");
+    } catch (에러) {
+      오류표시(에러);
+    }
+  }
+
+  function 데이터적용(데이터, 출처) {
+    // 파일 안에 버전이 적혀 있으면 그걸 씁니다
+    if (데이터.version) 버전 = 데이터.version;
+    document.getElementById("ver").textContent = `${버전} · ${출처}`;
+
+    // data 안에 챔피언들이 이름표를 달고 들어있어서, 목록 형태로 바꿔줍니다
+    전체데이터 = Object.values(데이터.data);
+    필터버튼만들기();
+    다시그리기();
+  }
+
+  function 오류표시(에러) {
+    const 로컬파일 = location.protocol === "file:";
+    document.getElementById("count").innerHTML = 로컬파일
+      ? `⚠ 이 파일을 <b>더블클릭해서 연 상태(file://)</b>라 데이터를 가져올 수 없습니다.<br>
+         GitHub Pages 주소에서 열거나, VS Code의 Live Server로 실행하세요.`
+      : `⚠ 라이엇 서버에 연결하지 못했습니다.<br>
+         <span style="font-size:12.5px;color:#b9c2d0">쓰고 있는 인터넷이 게임 사이트를 막고 있을 수 있습니다.
+         선생님께 <b>champion.json</b> 파일을 받아 이 페이지와 같은 폴더에 올려주세요.</span>`;
+    document.getElementById("count").style.color = "#e08a6a";
+  }
+
+  function 필터버튼만들기() {
+    const 역할목록 = ["전체", ...Object.keys(역할이름)];
+    document.getElementById("filters").innerHTML = 역할목록.map(역할 => `
+      <button data-role="${역할}" class="${역할 === "전체" ? "on" : ""}">
+        ${역할 === "전체" ? "전체" : 역할이름[역할]}
+      </button>
+    `).join("");
+    document.querySelectorAll("#filters button").forEach(버튼 => {
+      버튼.addEventListener("click", () => {
+        선택한역할 = 버튼.dataset.role;
+        document.querySelectorAll("#filters button").forEach(b => b.classList.remove("on"));
+        버튼.classList.add("on");
+        다시그리기();
+      });
+    });
+  }
+
+  function 다시그리기() {
+    const 검색어 = document.getElementById("search").value.trim();
+    const 걸러진목록 = 전체데이터.filter(챔프 =>
+      (선택한역할 === "전체" || 챔프.tags.includes(선택한역할)) &&
+      (검색어 === "" || 챔프.name.includes(검색어))
+    );
+    카드그리기(걸러진목록);
+    그래프그리기(전체데이터);
+  }
+
+  function 카드그리기(목록) {
+    document.getElementById("count").textContent = 목록.length + "명";
+    document.getElementById("list").innerHTML = 목록.map(챔프 => {
+      const 값없음 = 챔프.info.attack === 0 && 챔프.info.defense === 0 && 챔프.info.magic === 0;
+      return `
+      <div class="card">
+        <div class="pic">
+          <img src="https://ddragon.leagueoflegends.com/cdn/${버전}/img/champion/${챔프.image.full}"
+               alt="${챔프.name}"
+               onerror="this.parentNode.textContent='${챔프.name[0]}'">
+        </div>
+        <div class="body">
+          <div class="nm">${챔프.name}</div>
+          <div class="tt">${챔프.title}</div>
+          <div class="tags">${챔프.tags.map(t => `<span class="tag">${역할이름[t] || t}</span>`).join("")}</div>
+          ${막대("공격", 챔프.info.attack, "#e0654a")}
+          ${막대("방어", 챔프.info.defense, "#5b8def")}
+          ${막대("마법", 챔프.info.magic, "#a06ae0")}
+          ${막대("난이도", 챔프.info.difficulty, "#c8aa6e")}
+          ${값없음 ? '<div class="warn">⚠ 능력치 정보가 비어 있음</div>' : ""}
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function 막대(이름, 값, 색) {
+    // 값은 0~10 이므로 10을 곱하면 0~100% 가 됩니다
+    return `<div class="stat ${값 === 0 ? "zero" : ""}">
+      <span class="k">${이름}</span>
+      <span class="t"><span class="f" style="width:${값 * 10}%;background:${색}"></span></span>
+      <span class="v">${값}</span>
+    </div>`;
+  }
+
+  function 그래프그리기(목록) {
+    // 역할별로 체력과 공격력의 평균을 냅니다
+    const 모음 = {};
+    목록.forEach(챔프 => {
+      챔프.tags.forEach(역할 => {
+        if (!모음[역할]) 모음[역할] = { 체력: [], 공격력: [] };
+        모음[역할].체력.push(챔프.stats.hp);
+        모음[역할].공격력.push(챔프.stats.attackdamage);
+      });
+    });
+    const 평균 = 숫자들 => Math.round(숫자들.reduce((a, b) => a + b, 0) / 숫자들.length);
+    const 결과 = Object.entries(모음).map(([역할, 값]) => ({
+      역할: 역할이름[역할] || 역할,
+      체력: 평균(값.체력),
+      공격력: 평균(값.공격력)
+    })).sort((a, b) => b.체력 - a.체력);
+
+    const 최대체력 = Math.max(...결과.map(r => r.체력));
+    const 최대공격력 = Math.max(...결과.map(r => r.공격력));
+
+    document.getElementById("bars").innerHTML = 결과.map(r => `
+      <div class="bar">
+        <div class="lb">${r.역할}</div>
+        <div class="tr"><div class="fl" style="width:${r.체력 / 최대체력 * 100}%;background:#5b8def"></div></div>
+        <div class="vl">${r.체력}</div>
+      </div>
+      <div class="bar" style="margin-bottom:12px">
+        <div class="lb"></div>
+        <div class="tr"><div class="fl" style="width:${r.공격력 / 최대공격력 * 100}%;background:#e0654a"></div></div>
+        <div class="vl">${r.공격력}</div>
+      </div>
+    `).join("");
+  }
+
+  document.getElementById("search").addEventListener("input", 다시그리기);
+</script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1회차 — 바이브코딩 워크숍</title>
+<style>
+  :root{
+    --ground:#eef2f4; --card:#fff; --ink:#14303a; --ink2:#4d6a75; --ink3:#8ba3ad;
+    --line:#dae3e7; --deep:#14303a; --deep2:#1d4a52;
+    --coral:#d9553a; --coral-soft:#fbeae6;
+    --teal:#177d8c; --teal-soft:#e3f1f3;
+    --gold:#a8761f; --gold-soft:#fbf1de;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",
+                "Noto Sans KR",system-ui,sans-serif;
+    line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+
+  /* ---- hero ---- */
+  .hero{
+    background:linear-gradient(135deg,var(--deep) 0%,var(--deep2) 100%);
+    color:#fff; padding:54px 0 46px; position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0; opacity:.07; pointer-events:none;
+    background-image:repeating-linear-gradient(45deg,#fff 0 1px,transparent 1px 11px);
+  }
+  .hero .wrap{position:relative}
+  .kicker{
+    font-size:11.5px; letter-spacing:2.4px; text-transform:uppercase;
+    color:#8fd0d8; font-weight:700; margin:0 0 12px;
+  }
+  .hero h1{font-size:clamp(27px,5.2vw,40px);line-height:1.2;margin:0 0 12px;letter-spacing:-.8px}
+  .hero p{margin:0;color:#b8d3d9;font-size:16px;max-width:44ch}
+  .back{
+    display:inline-flex;align-items:center;gap:6px;color:#8fd0d8;text-decoration:none;
+    font-size:13.5px;font-weight:600;margin-bottom:16px;
+  }
+  .back:hover{color:#fff}
+
+  /* ---- sections ---- */
+  main{padding:38px 0 72px}
+  h2{font-size:17px;margin:36px 0 3px;display:flex;align-items:center;gap:9px}
+  h2:first-child{margin-top:0}
+  .sub{margin:0 0 16px;font-size:14px;color:var(--ink3)}
+
+  .grid{display:grid;gap:14px}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(265px,1fr))}
+
+  a.card{
+    display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:20px;text-decoration:none;position:relative;overflow:hidden;
+    transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;
+  }
+  a.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--teal)}
+  a.card.coral::before{background:var(--coral)}
+  a.card.gold::before{background:var(--gold)}
+  a.card:hover{transform:translateY(-3px);box-shadow:0 10px 26px -14px rgba(20,48,58,.5);border-color:#b9ccd3}
+  a.card:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+  .card .eyebrow{
+    font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;
+    color:var(--teal);margin-bottom:7px;
+  }
+  .card.coral .eyebrow{color:var(--coral)}
+  .card.gold .eyebrow{color:var(--gold)}
+  .card h3{margin:0 0 6px;font-size:18px;letter-spacing:-.3px}
+  .card p{margin:0;font-size:13.5px;color:var(--ink2);line-height:1.6}
+  .card .meta{
+    margin-top:12px;font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px;
+  }
+  .card .go{margin-left:auto;font-weight:700;color:var(--teal)}
+  .card.coral .go{color:var(--coral)} .card.gold .go{color:var(--gold)}
+
+  /* step card (번호형) */
+  a.step{display:grid;grid-template-columns:38px 1fr;gap:14px;align-items:start}
+  a.step::before{display:none}
+  a.step .n{
+    width:38px;height:38px;border-radius:11px;background:var(--teal-soft);color:var(--teal);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;
+  }
+  a.step.hl{border-color:var(--gold);background:var(--gold-soft)}
+  a.step.hl .n{background:#f2e2c2;color:var(--gold)}
+
+  .tip{
+    border-left:3px solid var(--gold);background:var(--gold-soft);border-radius:10px;
+    padding:15px 17px;margin:18px 0 0;font-size:13.5px;color:#654a17;line-height:1.65;
+  }
+  .tip.warn{border-left-color:var(--coral);background:var(--coral-soft);color:#7c3320}
+  .tip b{font-weight:700}
+  .tip code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;font-size:12.5px}
+
+  .empty{
+    background:var(--card);border:1px dashed var(--line);border-radius:14px;
+    padding:30px 20px;text-align:center;color:var(--ink3);font-size:13.5px;
+  }
+  footer{
+    border-top:1px solid var(--line);margin-top:46px;padding-top:20px;
+    font-size:12.5px;color:var(--ink3);line-height:1.7;
+  }
+  @media (prefers-reduced-motion:reduce){a.card{transition:none}}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="wrap">
+      <a class="back" href="../index.html">← 홈으로</a>
+      <p class="kicker">1회차 · 180분</p>
+      <h1>파일 하나가 세 번 자란다</h1>
+      <p>처음부터 다시 만드는 게 아닙니다. 같은 index.html 에 계속 덧붙입니다.</p>
+    </div>
+  </div>
+  <main><div class="wrap">
+    <h2>📄 단계별 결과물</h2>
+    <p class="sub">위에서부터 순서대로 열어보세요. 매 단계 같은 파일에 덧붙인 것입니다.</p>
+    <div class="grid g2">
+      <a class="card step " href="step1.html">
+        <div class="n">1</div>
+        <div><h3>자기소개 카드</h3><p>일부러 작게 시작합니다. 이걸로 첫 배포를 합니다</p></div>
+      </a>
+      <a class="card step " href="step2.html">
+        <div class="n">2</div>
+        <div><h3>＋ D-day 카운터</h3><p>맨 위에 카운터만 얹습니다. 날짜 한 줄만 바꾸면 뭐든 됩니다</p></div>
+      </a>
+      <a class="card step " href="step3.html">
+        <div class="n">3</div>
+        <div><h3>＋ 만다라트 목표판</h3><p>칸을 눌러 고칠 수 있고, 새로고침해도 남습니다</p></div>
+      </a>
+      <a class="card step hl" href="step4.html">
+        <div class="n">4</div>
+        <div><h3>색만 바꾼 버전</h3><p>3번과 코드가 똑같습니다. 색 6개와 이모지 1개만 바꿨습니다</p></div>
+      </a>
+      <a class="card step " href="broken.html">
+        <div class="n">5</div>
+        <div><h3>폰에서 깨지는 버전</h3><p>폰으로 열어보세요. viewport 한 줄이 빠져 있습니다</p></div>
+      </a>
+    </div>
+
+    <div class="tip">
+      <b>4번을 보는 법</b> — 3번과 4번을 각각 다른 탭으로 띄워 나란히 비교해 보세요.
+      코드는 한 글자도 다르지 않습니다. 색 코드 여섯 개와 이모지 하나만 바꾼 것입니다.
+      학생이 “내가 코드를 만져서 화면을 바꿨다”를 처음 경험하는 지점이고, AI 요청은 0회입니다.
+    </div>
+    <div class="tip warn">
+      <b>5번은 일부러 깨뜨린 파일입니다</b> — <code>&lt;meta name="viewport"&gt;</code> 를 지우고
+      가로 크기를 고정했습니다. 학생에게 먼저 폰으로 보여준 뒤 직접 고치게 하세요.
+    </div>
+    <footer>바이브코딩 워크숍 · 1회차</footer>
+  </div></main>
+</body>
+</html>

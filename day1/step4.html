@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>김서연의 페이지</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fdf3e7;
+    font-family: "Noto Sans CJK KR", "Apple SD Gothic Neo", sans-serif;
+    display: flex;
+    justify-content: center;
+  }
+
+  .dday {
+    background: linear-gradient(135deg, #c2571e, #e08a3c);
+    color: white; border-radius: 16px; padding: 24px;
+    max-width: 420px; width: 100%; margin-bottom: 16px; text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .dday .num { font-size: 52px; font-weight: bold; line-height: 1.1; letter-spacing: -1px; }
+  .dday .what { font-size: 14px; opacity: 0.85; margin-top: 6px; }
+  .stack { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+  .manda {
+    background: white; border-radius: 16px; padding: 24px;
+    max-width: 420px; width: 100%; margin-top: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .manda h2 { margin: 0 0 4px; font-size: 18px; color: #3a2a1a; text-align: center; }
+  .manda .hint { margin: 0 0 16px; font-size: 12px; color: #a89a8b; text-align: center; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .cell {
+    aspect-ratio: 1; background: #fdf3e7; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-size: 13px; color: #c2571e; padding: 6px; line-height: 1.35;
+    cursor: text; word-break: keep-all;
+  }
+  .cell.center { background: #c2571e; color: white; font-weight: bold; font-size: 15px; }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px 24px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  .emoji { font-size: 56px; margin-bottom: 8px; }
+  h1 { margin: 0 0 6px; font-size: 26px; color: #3a2a1a; }
+  .intro { margin: 0 0 24px; color: #7c6b5a; font-size: 15px; line-height: 1.6; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px; }
+  .tag {
+    background: #fbe6d0; color: #c2571e;
+    padding: 7px 14px; border-radius: 20px; font-size: 14px;
+  }
+  .btn {
+    display: inline-block; background: #c2571e; color: white;
+    padding: 12px 28px; border-radius: 10px;
+    text-decoration: none; font-size: 15px; font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <div class="stack">
+  <div class="dday">
+    <div class="num" id="dday">D-297</div>
+    <div class="what">수능까지</div>
+  </div>
+  <div class="card">
+    <div class="emoji">🔥</div>
+    <h1>김서연</h1>
+    <p class="intro">불꽃같이 사는<br>고등학교 2학년입니다</p>
+    <div class="tags">
+      <span class="tag">#농구</span>
+      <span class="tag">#뉴진스</span>
+      <span class="tag">#해양생물</span>
+    </div>
+    <a class="btn" href="https://github.com">내 깃허브 →</a>
+  </div>
+  <div class="manda">
+    <h2>나의 목표</h2>
+    <p class="hint">칸을 눌러서 고칠 수 있어요</p>
+    <div class="grid" id="grid">
+      <div class="cell" contenteditable="true">매일 30분<br>영어 듣기</div>
+      <div class="cell" contenteditable="true">수학<br>오답노트</div>
+      <div class="cell" contenteditable="true">주 3회<br>운동</div>
+      <div class="cell" contenteditable="true">독서<br>월 2권</div>
+      <div class="cell center" contenteditable="true">해양생물학과<br>진학</div>
+      <div class="cell" contenteditable="true">과학 동아리<br>발표</div>
+      <div class="cell" contenteditable="true">7시간<br>수면</div>
+      <div class="cell" contenteditable="true">봉사활동<br>20시간</div>
+      <div class="cell" contenteditable="true">코딩<br>포트폴리오</div>
+    </div>
+  </div>
+  </div>
+
+<script>
+  // 여기 날짜만 바꾸면 됩니다
+  const 목표날짜 = new Date("2027-11-18");
+  const 오늘 = new Date();
+  const 남은날 = Math.ceil((목표날짜 - 오늘) / (1000 * 60 * 60 * 24));
+  document.getElementById("dday").textContent = "D-" + 남은날;
+</script>
+<script>
+  // 고친 내용을 저장했다가 다시 켜면 불러옵니다
+  const 칸들 = document.querySelectorAll(".cell");
+  칸들.forEach((칸, i) => {
+    const 저장된값 = localStorage.getItem("칸" + i);
+    if (저장된값) 칸.innerHTML = 저장된값;
+    칸.addEventListener("input", () => localStorage.setItem("칸" + i, 칸.innerHTML));
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>따릉이 신규 가입자 — 누가, 언제</title>
+<style>
+  :root{
+    --bg:#f1f4f7; --card:#fff; --ink:#16202a; --ink2:#5c6f80; --ink3:#93a3b3;
+    --line:#dde4ec; --teal:#177d8c;
+    --남:#2a78d6;   /* 계열 1 */
+    --여:#eb6834;   /* 계열 2 — 파랑과 함께 색각 검사를 통과한 조합입니다 */
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px 14px 60px;background:var(--bg);color:var(--ink);
+    font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.55;
+    -webkit-text-size-adjust:100%}
+  .wrap{max-width:720px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px;letter-spacing:-.5px}
+  .sub{margin:0 0 20px;color:var(--ink2);font-size:13.5px}
+
+  .hero{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;margin-bottom:14px;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px}
+  .hero .k{font-size:11.5px;color:var(--ink3)}
+  .hero .v{font-size:23px;font-weight:bold;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
+  .hero .v small{font-size:13px;font-weight:normal;color:var(--ink2)}
+
+  .chart{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:18px 16px 14px;margin-bottom:14px}
+  .chart h2{font-size:15.5px;margin:0 0 2px}
+  .chart .cap{font-size:12.5px;color:var(--ink3);margin:0 0 14px}
+
+  /* 범례 — 계열이 둘이므로 색만으로 구분하지 않습니다 */
+  .legend{display:flex;gap:14px;font-size:12.5px;color:var(--ink2);margin-bottom:14px}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .legend i{width:11px;height:11px;border-radius:3px;display:block}
+
+  /* 연령대별 — 가로 막대 두 줄 */
+  .ages{display:grid;gap:12px}
+  .age{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:center}
+  .age .t{font-size:13px;color:var(--ink2);text-align:right}
+  .age .pair{display:grid;gap:3px}
+  .age .b{display:flex;align-items:center;gap:7px}
+  .age .b i{display:block;height:13px;border-radius:0 3px 3px 0;min-width:2px}
+  .age .b .n{font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* 월별 — 세로 막대 */
+  .months{display:flex;align-items:flex-end;gap:8px;height:160px;margin-top:6px}
+  .m{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;
+    position:relative;gap:2px}
+  .m .stack{display:flex;flex-direction:column;gap:2px;position:relative}
+  .m i{display:block;width:100%}
+  .m .f{background:var(--여);border-radius:3px 3px 0 0}
+  .m .ma{background:var(--남);border-radius:0 0 3px 3px}
+  /* 각 막대 바로 위에 붙습니다 (.stack 기준). .m 기준으로 두면 전부 맨 위에 몰립니다 */
+  .stack .tot{position:absolute;bottom:100%;left:0;right:0;text-align:center;
+    font-size:11px;font-weight:bold;color:var(--ink2);margin-bottom:4px;
+    font-variant-numeric:tabular-nums}
+  .mx{display:flex;gap:8px;margin-top:7px}
+  .mx span{flex:1;text-align:center;font-size:11.5px;color:var(--ink3)}
+
+  .note{background:#fff8e8;border-left:3px solid #b07d2e;border-radius:9px;
+    padding:12px 14px;font-size:13px;color:#6b5322;line-height:1.6;margin-bottom:14px}
+  .note > b:first-child{display:block;margin-bottom:3px}
+
+  .found{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .found h2{font-size:15px;margin:0 0 4px}
+  .found p{font-size:13px;color:var(--ink2);margin:0 0 10px}
+  textarea{width:100%;min-height:74px;padding:11px 12px;border:1px solid var(--line);
+    border-radius:8px;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical}
+
+  .msg{background:var(--card);border:1px solid var(--line);border-radius:11px;
+    padding:28px 16px;text-align:center;color:var(--ink3);font-size:13.5px}
+  footer{margin-top:22px;padding-top:14px;border-top:1px solid var(--line);
+    font-size:12px;color:var(--ink3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🚲 따릉이에 새로 가입한 사람들</h1>
+  <p class="sub">서울시 공공자전거 · 2026년 1월~6월 신규 가입자</p>
+
+  <div id="화면"><div class="msg">데이터를 불러오는 중…</div></div>
+
+  <footer>자료: 서울특별시 공공자전거 신규가입자 정보(월별)</footer>
+</div>
+
+<script>
+let 자료 = null;
+
+불러오기();
+
+async function 불러오기() {
+  try {
+    자료 = await (await fetch("./bike.json")).json();
+    그리기();
+  } catch (에러) {
+    document.getElementById("화면").innerHTML =
+      '<div class="msg">데이터를 불러오지 못했습니다.<br><br>' +
+      '파일을 <b>더블클릭해서 열면</b> 브라우저가 막습니다.<br>' +
+      'VS Code의 <b>Live Server</b>로 열거나, 배포한 주소로 접속하세요.</div>';
+    console.error(에러);
+  }
+}
+
+function 그리기() {
+  const 줄들 = 자료.자료;
+  const 총합 = 합(줄들);
+
+  // ── 연령대별 (성별로 나눠서) ────────────────────────
+  const 연령 = 자료.연령순서.map(나이 => ({
+    나이,
+    남: 합(줄들.filter(r => r.연령대 === 나이 && r.성별 === "남성")),
+    여: 합(줄들.filter(r => r.연령대 === 나이 && r.성별 === "여성")),
+  }));
+  const 연령최대 = Math.max(...연령.map(x => Math.max(x.남, x.여)));
+
+  // ── 월별 ────────────────────────────────────────
+  const 달들 = [...new Set(줄들.map(r => r.월))].sort((가, 나) => 가 - 나);
+  const 월별 = 달들.map(달 => ({
+    달,
+    남: 합(줄들.filter(r => r.월 === 달 && r.성별 === "남성")),
+    여: 합(줄들.filter(r => r.월 === 달 && r.성별 === "여성")),
+  })).map(x => ({ ...x, 계: x.남 + x.여 }));
+  const 월최대 = Math.max(...월별.map(x => x.계));
+
+  const 최다연령 = [...연령].sort((가, 나) => (나.남 + 나.여) - (가.남 + 가.여))[0];
+  const 최다월 = [...월별].sort((가, 나) => 나.계 - 가.계)[0];
+  const 남비율 = 합(줄들.filter(r => r.성별 === "남성")) / 총합 * 100;
+
+  document.getElementById("화면").innerHTML = `
+    <div class="hero">
+      <div><div class="k">6개월 동안</div>
+        <div class="v">${총합.toLocaleString()}<small>명</small></div></div>
+      <div><div class="k">가장 많은 나이대</div>
+        <div class="v">${최다연령.나이}</div></div>
+      <div><div class="k">가장 많았던 달</div>
+        <div class="v">${최다월.달}월</div></div>
+    </div>
+
+    <div class="chart">
+      <h2>나이대별로 몇 명이 가입했나</h2>
+      <p class="cap">6개월을 모두 더한 숫자입니다.</p>
+      ${범례()}
+      <div class="ages">
+        ${연령.map(x => `
+          <div class="age">
+            <div class="t">${안전(x.나이)}</div>
+            <div class="pair">
+              <div class="b"><i style="width:${x.남 / 연령최대 * 100}%;background:var(--남)"></i>
+                <span class="n">남 ${x.남.toLocaleString()}</span></div>
+              <div class="b"><i style="width:${x.여 / 연령최대 * 100}%;background:var(--여)"></i>
+                <span class="n">여 ${x.여.toLocaleString()}</span></div>
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="chart">
+      <h2>달마다 어떻게 달라졌나</h2>
+      <p class="cap">막대 하나가 한 달입니다. 위가 여성, 아래가 남성이에요.</p>
+      ${범례()}
+      <div class="months">
+        ${월별.map(x => `
+          <div class="m" title="${x.달}월 · 남 ${x.남.toLocaleString()} · 여 ${x.여.toLocaleString()}">
+            <div class="stack" style="height:${x.계 / 월최대 * 88}%">
+              <span class="tot">${x.계.toLocaleString()}</span>
+              <i class="f" style="height:${x.여 / x.계 * 100}%"></i>
+              <i class="ma" style="height:${x.남 / x.계 * 100}%"></i>
+            </div>
+          </div>`).join("")}
+      </div>
+      <div class="mx">${월별.map(x => `<span>${x.달}월</span>`).join("")}</div>
+    </div>
+
+    <div class="note">
+      <b>‘기타’는 뭘까요?</b>
+      나이대에 <b>기타</b>가 섞여 있습니다. 나이를 안 적었거나 확인이 안 된 사람들이에요.
+      실제 데이터에는 이렇게 <b>어디에도 안 들어가는 칸</b>이 늘 생깁니다.
+      빼고 셀지, 남겨둘지는 만드는 사람이 정해야 합니다.
+    </div>
+
+    <div class="found">
+      <h2>이 데이터를 보고 알게 된 것</h2>
+      <p>한 줄이면 충분합니다. 1월과 5월은 왜 이렇게 차이가 날까요?</p>
+      <textarea placeholder="예) 1월엔 ${월별[0].계.toLocaleString()}명인데 ${최다월.달}월엔 ${최다월.계.toLocaleString()}명이다. 추우면 자전거를 안 타니까 가입도 안 하는 것 같다."></textarea>
+    </div>`;
+}
+
+function 범례() {
+  return `<div class="legend">
+      <span><i style="background:var(--남)"></i>남성</span>
+      <span><i style="background:var(--여)"></i>여성</span>
+    </div>`;
+}
+
+const 합 = 줄들 => 줄들.reduce((ㄱ, ㄴ) => ㄱ + ㄴ.가입건수, 0);
+
+function 안전(글자) {
+  return String(글자).replace(/[&<>"]/g, ㄱ =>
+    ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[ㄱ]));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>게임 데이터 — 바이브코딩 워크숍</title>
+<style>
+  :root{
+    --ground:#eef2f4; --card:#fff; --ink:#14303a; --ink2:#4d6a75; --ink3:#8ba3ad;
+    --line:#dae3e7; --deep:#14303a; --deep2:#1d4a52;
+    --coral:#d9553a; --coral-soft:#fbeae6;
+    --teal:#177d8c; --teal-soft:#e3f1f3;
+    --gold:#a8761f; --gold-soft:#fbf1de;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",
+                "Noto Sans KR",system-ui,sans-serif;
+    line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+
+  /* ---- hero ---- */
+  .hero{
+    background:linear-gradient(135deg,var(--deep) 0%,var(--deep2) 100%);
+    color:#fff; padding:54px 0 46px; position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0; opacity:.07; pointer-events:none;
+    background-image:repeating-linear-gradient(45deg,#fff 0 1px,transparent 1px 11px);
+  }
+  .hero .wrap{position:relative}
+  .kicker{
+    font-size:11.5px; letter-spacing:2.4px; text-transform:uppercase;
+    color:#8fd0d8; font-weight:700; margin:0 0 12px;
+  }
+  .hero h1{font-size:clamp(27px,5.2vw,40px);line-height:1.2;margin:0 0 12px;letter-spacing:-.8px}
+  .hero p{margin:0;color:#b8d3d9;font-size:16px;max-width:44ch}
+  .back{
+    display:inline-flex;align-items:center;gap:6px;color:#8fd0d8;text-decoration:none;
+    font-size:13.5px;font-weight:600;margin-bottom:16px;
+  }
+  .back:hover{color:#fff}
+
+  /* ---- sections ---- */
+  main{padding:38px 0 72px}
+  h2{font-size:17px;margin:36px 0 3px;display:flex;align-items:center;gap:9px}
+  h2:first-child{margin-top:0}
+  .sub{margin:0 0 16px;font-size:14px;color:var(--ink3)}
+
+  .grid{display:grid;gap:14px}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(265px,1fr))}
+
+  a.card{
+    display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:20px;text-decoration:none;position:relative;overflow:hidden;
+    transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;
+  }
+  a.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--teal)}
+  a.card.coral::before{background:var(--coral)}
+  a.card.gold::before{background:var(--gold)}
+  a.card:hover{transform:translateY(-3px);box-shadow:0 10px 26px -14px rgba(20,48,58,.5);border-color:#b9ccd3}
+  a.card:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+  .card .eyebrow{
+    font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;
+    color:var(--teal);margin-bottom:7px;
+  }
+  .card.coral .eyebrow{color:var(--coral)}
+  .card.gold .eyebrow{color:var(--gold)}
+  .card h3{margin:0 0 6px;font-size:18px;letter-spacing:-.3px}
+  .card p{margin:0;font-size:13.5px;color:var(--ink2);line-height:1.6}
+  .card .meta{
+    margin-top:12px;font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px;
+  }
+  .card .go{margin-left:auto;font-weight:700;color:var(--teal)}
+  .card.coral .go{color:var(--coral)} .card.gold .go{color:var(--gold)}
+
+  /* step card (번호형) */
+  a.step{display:grid;grid-template-columns:38px 1fr;gap:14px;align-items:start}
+  a.step::before{display:none}
+  a.step .n{
+    width:38px;height:38px;border-radius:11px;background:var(--teal-soft);color:var(--teal);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;
+  }
+  a.step.hl{border-color:var(--gold);background:var(--gold-soft)}
+  a.step.hl .n{background:#f2e2c2;color:var(--gold)}
+
+  .tip{
+    border-left:3px solid var(--gold);background:var(--gold-soft);border-radius:10px;
+    padding:15px 17px;margin:18px 0 0;font-size:13.5px;color:#654a17;line-height:1.65;
+  }
+  .tip.warn{border-left-color:var(--coral);background:var(--coral-soft);color:#7c3320}
+  .tip b{font-weight:700}
+  .tip code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;font-size:12.5px}
+
+  .empty{
+    background:var(--card);border:1px dashed var(--line);border-radius:14px;
+    padding:30px 20px;text-align:center;color:var(--ink3);font-size:13.5px;
+  }
+  footer{
+    border-top:1px solid var(--line);margin-top:46px;padding-top:20px;
+    font-size:12.5px;color:var(--ink3);line-height:1.7;
+  }
+  @media (prefers-reduced-motion:reduce){a.card{transition:none}}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="wrap">
+      <a class="back" href="../index.html">← 홈으로</a>
+      <p class="kicker">2회차 · 게임 데이터</p>
+      <h1>LoL 챔피언 도감</h1>
+      <p>173명의 챔피언 데이터를 검색하고, 역할별로 능력치를 비교합니다.</p>
+    </div>
+  </div>
+  <main><div class="wrap">
+    <h2>🎮 예제</h2>
+    <p class="sub">라이엇이 공개한 정적 데이터라 API 키가 필요 없습니다.</p>
+    <div class="grid g2">
+      <a class="card gold" href="champions.html">
+        <div class="eyebrow">게임 데이터</div>
+        <h3>LoL 챔피언 도감</h3>
+        <p>173명을 검색하고 역할로 거르고, 역할별 평균 체력과 공격력을 비교합니다.</p>
+        <div class="meta"><span>이름 · 역할 · 능력치</span><span class="go">열기 →</span></div>
+      </a>
+    </div>
+
+    <div class="tip">
+      <b>데이터를 어디서 가져오나</b> — 두 곳을 순서대로 시도합니다.
+      먼저 라이엇 Data Dragon 에서 직접 (최신 버전 자동 감지),
+      실패하면 같은 폴더의 <code>champion.json</code>.
+      화면 위쪽에 어느 쪽에서 왔는지 표시됩니다.
+    </div>
+    <div class="tip warn">
+      <b>게임 도메인이 막히는 네트워크가 있습니다</b> — 회사·학교망이나 자녀 보호 필터에서
+      <code>ddragon.leagueoflegends.com</code> 이 차단될 수 있습니다
+      (증상은 <code>ERR_CONNECTION_CLOSED</code>). 그럴 때를 대비해 강사용
+      <code>champion.json</code> 을 미리 받아두고, 막힌 학생에게 보내 이 폴더에 올리게 하세요.
+    </div>
+    <div class="tip">
+      <b>수업에서 짚을 것</b> — 능력치가 전부 0인 챔피언이 있고(아크샨·렐·세라핀·벡스),
+      비에고의 마나는 10000이라 그래프를 혼자 다 차지합니다. 역할이 두 개인 챔피언도 많습니다.
+      실제 데이터에는 빠진 값과 이상치가 있다는 걸 눈으로 보는 순간입니다.
+    </div>
+    <footer>LoL 챔피언 데이터 및 이미지 © Riot Games — 비상업 목적 사용</footer>
+  </div></main>
+</body>
+</html>
