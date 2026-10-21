@@ -53,12 +53,14 @@
     font-family: ui-monospace, Menlo, monospace;
   }
   .copy {
-    font-size: 12px; font-family: inherit; padding: 4px 10px; border-radius: 6px;
-    border: 1px solid var(--line); background: #fff; cursor: pointer; color: var(--ink2);
+    display: block; width: 100%; margin: 0 0 8px; font-size: 14px; font-weight: bold; font-family: inherit;
+    padding: 10px; border-radius: 10px; border: 1px solid #b9d7dc; background: #fff; color: var(--teal); cursor: pointer;
   }
+  .copy:hover { background: #e3f0f2; }
+  .copy.done { background: var(--teal); border-color: var(--teal); color: #fff; }
 
   a.play {
-    margin-top: auto; display: block; text-align: center; padding: 11px; border-radius: 10px;
+    display: block; text-align: center; padding: 11px; border-radius: 10px;
     background: var(--ink); color: #fff; text-decoration: none; font-weight: bold; font-size: 15px;
   }
   a.play:hover { background: var(--teal); }
@@ -218,22 +220,30 @@ https://ddragon.leagueoflegends.com/cdn/16.17.1/data/ko_KR/champion.json
       <ul class="ideas">${g.바꿔보기.map(t => `<li>${t}</li>`).join("")}</ul>
       <details>
         <summary>시작 프롬프트 보기</summary>
-        <pre id="p${i}">${g.프롬프트.replace(/</g, "&lt;")}</pre>
-        <button class="copy" data-i="${i}">복사</button>
+        <pre id="p${i}">${g.프롬프트.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>
       </details>
-      <a class="play" href="${g.파일}">해보기 →</a>
+      <div style="margin-top:auto">
+        <button class="copy" type="button" data-i="${i}">📋 시작 프롬프트 복사</button>
+        <a class="play" href="${g.파일}">해보기 →</a>
+      </div>
     </div>`).join("");
 
+  async function 복사(글) {
+    try { await navigator.clipboard.writeText(글); return true; } catch (e) {}
+    const t = document.createElement("textarea");
+    t.value = 글; t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    t.remove(); return ok;
+  }
   document.getElementById("grid").addEventListener("click", async e => {
     const b = e.target.closest(".copy");
     if (!b) return;
-    try {
-      await navigator.clipboard.writeText(게임들[b.dataset.i].프롬프트);
-      b.textContent = "복사됨 ✓";
-    } catch (err) {
-      b.textContent = "직접 선택해서 복사하세요";
-    }
-    setTimeout(() => (b.textContent = "복사"), 1600);
+    const ok = await 복사(게임들[b.dataset.i].프롬프트);
+    b.textContent = ok ? "✓ 복사됐어요" : "위 ‘시작 프롬프트 보기’에서 직접 복사하세요";
+    b.classList.toggle("done", ok);
+    if (!ok) b.closest(".g").querySelector("details").open = true;
+    setTimeout(() => { b.textContent = "📋 시작 프롬프트 복사"; b.classList.remove("done"); }, 1800);
   });
 </script>
 </body>
