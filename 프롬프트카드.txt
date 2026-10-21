@@ -48,9 +48,7 @@
 
 조건:
 - 파일은 index.html 하나만. CSS도 그 안에 넣어줘
-- 맨 위에 아래 두 줄 꼭 넣어줘
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+- 한글이 깨지지 않게, 휴대폰 화면 크기에 맞게 만들어줘
 - 흰색 카드가 가운데 떠 있고 배경은 연한 색
 - 휴대폰 세로 화면에서 옆으로 스크롤이 안 생기게
 - 가로 크기는 고정하지 말고 화면에 맞춰 늘어나게
