@@ -148,6 +148,14 @@
     .rank{width:36px;height:36px;font-size:14px}
     .count b{font-size:23px}
   }
+  .submit{display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:13px 16px;border-radius:12px;
+    background:var(--teal);color:#fff;text-decoration:none;transition:background .14s ease}
+  .submit:hover{background:#12656f}
+  .submit:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+  .submit-ic{font-size:22px;line-height:1}
+  .submit b{display:block;font-size:15px}
+  .submit small{display:block;font-size:12.5px;opacity:.85;margin-top:1px}
+  .submit-go{margin-left:auto;font-weight:700;font-size:17px}
   @media (prefers-reduced-motion:reduce){a.card{transition:none}}
 </style>
 </head>
@@ -160,6 +168,25 @@
     </div>
   </div>
   <main><div class="wrap">
+    <h2>📌 수업 전에</h2>
+    <p class="sub">첫 수업 전에 한 번씩 열어보세요.</p>
+    <div class="grid g2">
+      <a class="card" href="intro/index.html">
+        <div class="eyebrow">수업 소개</div>
+        <h3>이 워크숍에서 하는 것</h3>
+        <p>두 번의 수업에서 무엇을 만들고, 어떻게 진행하는지 미리 보여드립니다.</p>
+        <div class="meta"><span>수업 전 안내</span><span class="go">열기 →</span></div>
+      </a>
+      <a class="card" href="https://drive.google.com/file/d/1BLX8XAffHWFOKV05cprdW00AMEUzJRch/view" target="_blank" rel="noopener">
+        <div class="eyebrow">튜토리얼</div>
+        <h3>GitHub에 업로드하는 방법</h3>
+        <p>저장소 만들기부터 내 주소가 생길 때까지, 화면을 따라 순서대로 봅니다.</p>
+        <div class="meta"><span>구글 드라이브 · 새 탭</span><span class="go">열기 ↗</span></div>
+      </a>
+    </div>
+
+    <h2>📚 수업</h2>
+    <p class="sub">회차별 예제와 프롬프트입니다.</p>
     <div class="grid g2">
       <a class="card coral" href="day1/index.html">
         <div class="eyebrow">1회차 · 180분</div>
@@ -183,13 +210,18 @@
         <button class="refresh" id="refresh" type="button">↻ 새로고침</button>
       </div>
     </div>
+    <a class="submit" href="https://docs.google.com/forms/d/e/1FAIpQLSfE-OEOPnr7j2qwdGUJioZMGzsei_O4wedpYLT9htsWPdNu9w/viewform" target="_blank" rel="noopener">
+      <span class="submit-ic">📮</span>
+      <span><b>내 작품 주소 제출하기</b><small>깃허브 아이디와 게임 주소를 적어 주세요 · 구글 설문, 새 탭</small></span>
+      <span class="submit-go">↗</span>
+    </a>
     <div class="list" id="students"></div>
     <div class="empty" id="emptyMsg" hidden>
-      아직 등록된 작품이 없습니다<br>
-      <span style="font-size:12.5px">index.html 맨 아래 <code>학생들</code> 목록에 한 줄씩 추가하세요</span>
+      아직 올라온 작품이 없어요<br>
+      <span style="font-size:12.5px">위의 <b>내 작품 주소 제출하기</b>로 주소를 보내면 여기에 올라옵니다</span>
     </div>
 
-    <footer>바이브코딩 워크숍 · 강사용 시연 페이지<br>LoL 챔피언 데이터 및 이미지 © Riot Games — 비상업 목적 사용</footer>
+    <footer>바이브코딩 워크숍<br>LoL 챔피언 데이터 및 이미지 © Riot Games — 비상업 목적 사용</footer>
   </div></main>
 
 <script>
