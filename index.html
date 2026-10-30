@@ -162,14 +162,19 @@
   .pcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--teal)}
   .pcard .eyebrow{font-size:10.5px;letter-spacing:1.4px;font-weight:700;color:var(--teal);margin-bottom:7px}
   .pcard h3{margin:0 0 6px;font-size:17px;letter-spacing:-.3px}
-  .pcard p{margin:0 0 14px;font-size:13.5px;color:var(--ink2);line-height:1.6}
-  .pcopy{margin-top:auto;font:inherit;font-size:14px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer;
+  .pcard p{margin:0 0 14px;font-size:13.5px;color:var(--ink2);line-height:1.6;min-height:3.2em}
+  .pcopy{font:inherit;font-size:14px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer;
     border:1px solid #b9d7dc;background:#fff;color:var(--teal);transition:background .14s ease}
   .pcopy:hover{background:var(--teal-soft)}
   .pcopy.done{background:var(--teal);border-color:var(--teal);color:#fff}
-  .pcard details{margin-top:10px}
-  .pcard summary{font-size:12.5px;font-weight:700;color:var(--ink3);cursor:pointer}
-  .pcard pre{background:#f3f6f5;border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin:8px 0 0;
+  .ptoggle{align-self:flex-start;margin-top:10px;padding:2px 0;border:0;background:none;font:inherit;
+    font-size:12.5px;font-weight:700;color:var(--ink3);cursor:pointer}
+  .ptoggle:hover{color:var(--teal)}
+  .ptoggle::before{content:"▸ "}
+  #prompts.open .ptoggle::before{content:"▾ "}
+  .pbox{display:none;flex:1;flex-direction:column}
+  #prompts.open .pbox{display:flex}
+  .pcard pre{flex:1;background:#f3f6f5;border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin:8px 0 0;
     font-size:12.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Menlo,Consolas,monospace}
   @media (prefers-reduced-motion:reduce){a.card{transition:none}}
 </style>
@@ -270,7 +275,8 @@ html 코드 다운로드랑 복사할 수 있게 만들어줘.` },
       <h3>${d.제목}</h3>
       <p>${d.설명}</p>
       <button class="pcopy" type="button" data-i="${i}">📋 프롬프트 복사</button>
-      <details><summary>프롬프트 보기</summary><pre>${안전글(d.글)}</pre></details>
+      <button class="ptoggle" type="button" aria-expanded="false">프롬프트 보기</button>
+      <div class="pbox"><pre>${안전글(d.글)}</pre></div>
     </div>`).join("");
   async function 복사(글) {
     try { await navigator.clipboard.writeText(글); return true; } catch (e) {}
@@ -280,13 +286,22 @@ html 코드 다운로드랑 복사할 수 있게 만들어줘.` },
     let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
     t.remove(); return ok;
   }
+  // 하나를 펼치면 세 카드를 함께 펼쳐서, 카드 높이와 버튼 줄이 맞도록 합니다
+  function 펼치기(열기) {
+    칸.classList.toggle("open", 열기);
+    칸.querySelectorAll(".ptoggle").forEach(t => {
+      t.setAttribute("aria-expanded", String(열기));
+      t.textContent = 열기 ? "프롬프트 접기" : "프롬프트 보기";
+    });
+  }
   칸.addEventListener("click", async e => {
+    if (e.target.closest(".ptoggle")) return 펼치기(!칸.classList.contains("open"));
     const b = e.target.closest(".pcopy");
     if (!b) return;
     const ok = await 복사(묶기프롬프트[b.dataset.i].글);
     b.textContent = ok ? "✓ 복사됐어요" : "아래 ‘프롬프트 보기’에서 직접 복사하세요";
     b.classList.toggle("done", ok);
-    if (!ok) b.closest(".pcard").querySelector("details").open = true;
+    if (!ok) 펼치기(true);
     setTimeout(() => { b.textContent = "📋 프롬프트 복사"; b.classList.remove("done"); }, 1800);
   });
 })();
